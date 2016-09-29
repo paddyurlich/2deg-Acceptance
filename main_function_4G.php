@@ -2,6 +2,7 @@
     
 function returnStats4G($pp, $selection, $startDate, $endDate){
 
+    if (isset($pp, $selection, $startDate, $endDate)) {
       //include getRevenueFigures();
       //$data_cost =  $getRevenueFigures['data'];
 
@@ -152,6 +153,9 @@ function returnStats4G($pp, $selection, $startDate, $endDate){
      // $endDate = "2016-09-12";
 
      // returnStats4G($pp, $selection, $startDate, $endDate);
+  }
+ return null;
+
 
 ?>
 

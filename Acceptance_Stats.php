@@ -1,198 +1,62 @@
 
 
 <?php include 'functions.php' ?>
+<?php include 'main_function.php' ?>
+<?php include 'main_function_4G.php' ?>
+<?php include 'getCellList.php' ?>
+<?php include 'getCellList4G.php' ?>
+<?php include 'getDateList.php' ?>
+
 
 <?php
-    
-    set_time_limit(360);
 
-    //=============================
-    // database connection
-    //=============================  
+  // get date list and and cell list from functions. 
+  $dateList = getDateList();
+  $cellList = getCellList();
+  $cellList4G = getCellList4G();
 
-    $servername = "172.21.200.37";
-    $username = "patrickurlich";
-    $password = "forPUonly";
-    $dbname = "ranPU";
-    $table = "Acceptance_Stats_3G_daily";
 
-    // Create connection
-    //$connect = new mysqli($servername, $username, $password, $dbname);
-     $connect = mysqli_connect($servername, $username,$password,$dbname); 
-    // Check connection
-    if ($connect->connect_error) {
-        die("Connection failed: " . $connect->connect_error);
-    } 
+  set_time_limit(360);
 
 
-    
+  //=============================
+  // helper vars
+  //=============================
 
-    //==========================================
-    //get cell and date list for drop downs
-    //==========================================
+  $selectedCells_pre = isset($_GET['cell']) ? $_GET['cell'] : null ;
+  $selectedCells_post = isset($_GET['cellCluster2']) ? $_GET['cellCluster2'] : null ;
 
-    $sql = "SELECT CELLNAME, Date from `ranPU`.`".$table."`"." ORDER BY $table.CELLNAME ASC";
+  $selectedCells_4G_pre = isset($_GET['cell4Gpre']) ? $_GET['cell4Gpre'] : null ;
+  $selectedCells_4G_post = isset($_GET['cell4Gpost']) ? $_GET['cell4Gpost'] : null ;
 
-    //echo $sql;
 
-    $result = $connect->query($sql);
+  $startDate = isset($_GET['startDate']) ? $_GET['startDate'] : null ;
+  $endDate = isset($_GET['endDate']) ? $_GET['endDate'] : null ;
 
-    //$result_array = array();
-    //$cellList_array = array();
+  $startDate_post = isset($_GET['startDate_post']) ? $_GET['startDate_post'] : null ;
+  $endDate_post = isset($_GET['endDate_post']) ? $_GET['endDate_post'] : null ;
 
-    if ($result->num_rows > 0) {
-        // output data of each row
-        while($row = $result->fetch_assoc()) {
-            $result_array[] = $row;
-            //echo "Cell: " . $row["Object"]. " - Date: " . $row["TheDate"]. " RNC " . $row["RNC"]. "<br>";
-        }
-    } else {
-        echo "0 results ";
-    }
+  $formComplete = (is_null($selectedCells_pre)  || is_null($startDate) || is_null($endDate)) ? false : true ;
 
 
-     foreach($result_array as $k => $v) {
-         $cellList_array[] =  $result_array[$k]['CELLNAME'];
-     }
+  // $connect->close();
 
-     foreach($result_array as $k => $v) {
-          //$dateList_array[] =  substr($result_array[$k]['Date'],0,-9);
-          $dateList_array[] =  $result_array[$k]['Date'];
+  $stats_pre =  returnStats3G("pre", $selectedCells_pre, $startDate, $endDate);
+  $stats_post =  returnStats3G("post", $selectedCells_post, $startDate_post, $endDate_post);
 
-     }
+  $stats_4G_pre =  returnStats4G("pre", $selectedCells_4G_pre, $startDate, $endDate);
+  $stats_4G_post =  returnStats4G("post", $selectedCells_4G_post, $startDate_post, $endDate_post);
 
+  // var_dump($selectedCells_pre);
+  // var_dump($startDate);
+  // var_dump($startDate);
+  // var_dump($stats_pre);
 
 
-      $cellList_array = array_unique($cellList_array);
-      $dateList_array = array_unique($dateList_array);
-
-      $dateList_array_sorted = arsort($dateList_array);
-
-    //=============================
-    // helper vars
-    //=============================
-
-      $selection = isset($_GET['cell']) ? $_GET['cell'] : null ;
-      $startDate = isset($_GET['startDate']) ? $_GET['startDate'] : null ;
-      $endDate = isset($_GET['endDate']) ? $_GET['endDate'] : null ;
-
-      $formComplete = (is_null($selection)  || is_null($startDate) || is_null($endDate)) ? false : true ;
-
-    //=============================
-    // trouble shooting - var dumps
-    //=============================
-
-        
-        //var_dump($dateList_array);
-        //var_dump($dateList_array_sorted);
-        //var_dump($result_array);
-        //var_dump($formComplete);
-        //var_dump($selection);
-        //var_dump($startDate);
-        //var_dump($startDate);
-
-
-  
-    //=============================
-    // test area
-    //=============================
-
-
-// $sql = "SELECT CELLNAME, Date from `ranPU`.`".$table."`"." ORDER BY $table.CELLNAME ASC";
-
-//     $result = $connect->query($sql);
-
-//     //$result_array = array();
-//     //$cellList_array = array();
-
-//     if ($result->num_rows > 0) {
-//         // output data of each row
-//         while($row = $result->fetch_assoc()) {
-//             $result_array[] = $row;
-//             //echo "Cell: " . $row["Object"]. " - Date: " . $row["TheDate"]. " RNC " . $row["RNC"]. "<br>";
-//         }
-//     } else {
-//         echo "0 results ";
-//     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //=============================
-    // if form is summited then process.....
-    //=============================
-
-    if($formComplete) {
-
-        $selectedCells = "";
-
-        foreach ($selection as $selectedCell) {
-          $selectedCells .= " CELLNAME = '".$selectedCell."' OR ";
-        }
-        $selectedCells = substr($selectedCells, 0, -3); //remove last "OR" from end of SQL string
-
-
-
-        // ========== CS_CSSR_Average ===============        
-
-        $CS_CSSR_AverageSQL =     "SELECT (((sum(PU_Voice_RRC_Succ)/sum(PU_Voice_RRC_Att))*100) *
-                                    ((sum(PU_Voice_RAB_Succ)/sum(PU_Voice_RAB_Att))*100))/100
-                                  AS CS_CSSR_Average
-                                  FROM `ranPU`.`Acceptance_Stats_3G_daily` 
-                                  WHERE (Date BETWEEN '".$startDate."' AND '".$endDate."') AND ".$selectedCells; 
-
-        $CS_CSSR_Average = getSQLResult($CS_CSSR_AverageSQL,"CS_CSSR_Average");
-
-        // ========== CS_Ret ===============
-       
-        $CS_RetSQL =              "SELECT (100-((sum(PU_Voice_Ret_Num)/sum(PU_Voice_Ret_Den))*100))
-                                  AS CS_Ret
-                                  FROM `ranPU`.`Acceptance_Stats_3G_daily` 
-                                  WHERE (Date BETWEEN '".$startDate."' AND '".$endDate."') AND ".$selectedCells; 
-
-        $CS_Ret = getSQLResult($CS_RetSQL,"CS_Ret");        
-
-        // // ========== PS_CSSR_Average ===============
-
-        $PS_CSSR_AverageSQL =     "SELECT (((sum(PU_PS_RRC_Succ)/sum(PU_PS_RRC_Att))*100) *
-                                    ((sum(PU_PS_RAB_Succ)/sum(PU_PS_RAB_Att))*100))/100
-                                  AS PS_CSSR_Average
-                                  FROM `ranPU`.`Acceptance_Stats_3G_daily` 
-                                  WHERE (Date BETWEEN '".$startDate."' AND '".$endDate."') AND ".$selectedCells; 
-
-
-        $PS_CSSR_Average = getSQLResult($PS_CSSR_AverageSQL,"PS_CSSR_Average");        
-
-
-        // ========== PS_Ret ===============
-
-        $PS_RetSQL =              "SELECT (100-((sum(PU_PS_Ret_Num)/sum(PU_PS_Ret_Den))*100))
-                                  AS PS_Ret
-                                  FROM `ranPU`.`Acceptance_Stats_3G_daily` 
-                                  WHERE (Date BETWEEN '".$startDate."' AND '".$endDate."') AND ".$selectedCells; 
-
-        $PS_Ret = getSQLResult($PS_RetSQL,"PS_Ret"); 
-
-      } 
-
-    $connect->close();
+  // var_dump($selectedCells_post);
+  // var_dump($startDate_post);
+  // var_dump($endDate_post);
+  // var_dump($stats_post);
 ?>
 
 
@@ -218,169 +82,437 @@
   <!-- Latest compiled JavaScript -->
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
+
+
 </head>
 <body>
 
-<!-- <div class="panel panel-primary">
-  <div class="panel-heading">File Input:</div>
-  <div class="panel-body">
-     <form action:"CSVupload.php" method='POST' enctype='multipart/form-data'>  
-        <div align="left">  
-             <p>Upload CSV: <input type='file' name='file' /></p>  
-             <p><input type='submit' name='submit' value='Import' /></p>  
-        </div>  
-   </form>
-  </div>
-</div> -->
+
+<!--     <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="#"> Acceptance Stats </a>
+          </div>
+    </nav> -->
+
+
+<!-- <br></br><br></br> -->
+
+    <div class="jumbotron">
+      <div class="container">
+        <h1>Acceptance Stats</h1>
+        <p>Compare performance of a cluster between a range of dates. </p>
+      </div>
+    </div>
+
+
+    <form action:"index.php" method: "get">
+    <div class="container">
+
+      <div class="row">
+
+        <div class="col-md-3">  
+          <h2>Pre Dates</h2>
+          <hr>  
+            <em>Start time/date:</em>
+            <select name="startDate" data-placeholder="Choose a start date..." class="chosen-select" style="width:200px;" tabindex="4">
+            <option value=""></option>       
+                <?php foreach($dateList as $k => $v) { ?>
+                  <option value="<?php echo $dateList[$k] ?>" <?php echo isset($startDate) && $dateList[$k] == $startDate ? ' selected' : '' ?>> <?php echo $dateList[$k]; ?>  </option>                    
+                <?php } ?> 
+            </select>
+
+            <br/><br/>
+
+            <em>End time/date: </em>
+            <select name="endDate" data-placeholder="Choose an end date..." class="chosen-select" style="width:200px;" tabindex="4">
+              <option value=""></option>       
+                <?php foreach($dateList as $k => $v) { ?>
+                  <option value="<?php echo $dateList[$k]?>" <?php echo isset($endDate) && $dateList[$k] == $endDate ? ' selected' : '' ?>> <?php echo $dateList[$k]; ?>                      
+                <?php } ?> 
+            </select>
+        </div>
+
+        <div class="col-md-4">
+          <h2>Cells (Pre) 3G</h2>
+             <hr>
+             <select name="cell[]" data-placeholder="Choose a cell..." class="chosen-select" multiple style="width:300px;" tabindex="4">
+                <option value=""></option>       
+                    <?php foreach($cellList as $k => $v) { ?>
+                        <option value=<?php echo $cellList[$k];?>
+                          
+                          <?php
+                            if (isset($selectedCells_pre)) {
+                              foreach ($selectedCells_pre as $key => $selectedCell) {
+                                echo isset($selectedCells_pre) && $cellList[$k] == $selectedCell ? ' selected' : '';
+                              }
+                            }
+                          ?>
+
+                          > <!--end of option tag -->
+
+                          <?php echo $cellList[$k]; ?>  
+
+                    <?php } ?> 
+              </select>
+        </div>
+
+        <div class="col-md-4">
+          <h2>Cells (Pre) 4G</h2>
+             <hr>
+             <select name="cell4Gpre[]" data-placeholder="Choose a cell..." class="chosen-select" multiple style="width:300px;" tabindex="4">
+                <option value=""></option>       
+                    <?php foreach($cellList4G as $k => $v) { ?>
+                        <option value=<?php echo $cellList4G[$k];?>
+                          
+                          <?php
+                            if (isset($selectedCells_4G_pre)) {
+                              foreach ($selectedCells_4G_pre as $key => $selectedCell) {
+                                echo isset($selectedCells_4G_pre) && $cellList4G[$k] == $selectedCell ? ' selected' : '';
+                              }
+                            }
+                          ?>
+
+                          > <!--end of option tag -->
+
+                          <?php echo $cellList4G[$k]; ?>  
+
+                    <?php } ?> 
+              </select>
+        </div>
 
 
 
 
-<form action:"index.php" method: "get">
-<div id="container" class="container">
-  <div id="content" class="panel panel-default">
-    <header>
-      <h1>Acceptance KPI Snapshot <small>(<span id="latest-version">v1</span>)</small></h1>
-    </header>
-   <!--  <p>What is the performance of you cluster ? </p> -->
+      </div> <!--end first row --> 
+
+
+      <div class="row">
+
+        <div class="col-md-3">  
+          <h2>Post Dates</h2>
+          <hr>
+            <em>Start time/date:</em>
+            <select name="startDate_post" data-placeholder="Choose a start date..." class="chosen-select" style="width:200px;" tabindex="4">
+            <option value=""></option>       
+                <?php foreach($dateList as $k => $v) { ?>
+                  <option value="<?php echo $dateList[$k] ?>" <?php echo isset($startDate_post) && $dateList[$k] == $startDate_post ? ' selected' : '' ?>> <?php echo $dateList[$k]; ?>                      
+                <?php } ?> 
+            </select>
+
+            <br/><br/>
+
+            <em>End time/date: </em>
+            <select name="endDate_post" data-placeholder="Choose an end date..." class="chosen-select" style="width:200px;" tabindex="4">
+              <option value=""></option>       
+                <?php foreach($dateList as $k => $v) { ?>
+                  <option value="<?php echo $dateList[$k] ?>" <?php echo isset($endDate_post) && $dateList[$k] == $endDate_post ? ' selected' : '' ?>> <?php echo $dateList[$k]; ?>                      
+                <?php } ?> 
+            </select>
+        </div>
+
+
+        <div class="col-md-4">
+          <h2>Cells (Post) 3G</h2>
+          <hr>
+             <select name="cellCluster2[]" data-placeholder="Choose a cell..." class="chosen-select" multiple style="width:300px;" tabindex="4">
+                <option value=""></option>       
+                    <?php foreach($cellList as $k => $v) { ?>
+                        <option value=<?php echo $cellList[$k] ?>
+                          
+                          <?php
+                            if (isset($selectedCells_post)) {
+                              foreach ($selectedCells_post as $key => $selectedCell) {
+                                echo isset($selectedCells_post) && $cellList[$k] == $selectedCell ? ' selected' : '';
+                              }
+                            }
+                          ?>
+
+                          > <!--end of option tag -->
+
+                          <?php echo $cellList[$k]; ?>
+
+                    <?php } ?> 
+              </select>
+        </div>
+
+        <div class="col-md-4">
+          <h2>Cells (Post) 4G</h2>
+             <hr>
+             <select name="cell4Gpost[]" data-placeholder="Choose a cell..." class="chosen-select" multiple style="width:300px;" tabindex="4">
+                <option value=""></option>       
+                    <?php foreach($cellList4G as $k => $v) { ?>
+                        <option value=<?php echo $cellList4G[$k];?>
+                          
+                          <?php
+                            if (isset($selectedCells_4G_post)) {
+                              foreach ($selectedCells_4G_post as $key => $selectedCell) {
+                                echo isset($selectedCells_4G_post) && $cellList4G[$k] == $selectedCell ? ' selected' : '';
+                              }
+                            }
+                          ?>
+
+                          > <!--end of option tag -->
+
+                          <?php echo $cellList4G[$k]; ?>  
+
+                    <?php } ?> 
+              </select>
+        </div>
+
+
+    </div> <!--end second row --> 
 
 
 
+    <div class="row">
+      <div class="col-md-12">
+        <hr>
+        <input type="submit" value="Show" class="btn btn-primary">
+      </div>
+    </div> <!--end of third row --> 
 
-    <div>
+</form> <!-- end of form --> 
+
       
-      <em>Cells:</em>                
-     
+      <div class="row">
+        <div class="col-md-6">
+          <h2>3G Performance Summary</h2>
 
+          <table class="table table-hover table-inverse table-sm" >
+                <thead>
+          <tr>
+            <th></th>
+            <th>Pre</th>
+            <th>Post</th>
+            <th>Delta</th>
+          </tr>
+        </thead>
 
-<!-- 
-  ============================
-     Cell - Input select
-  ============================
- -->
-     <select name="cell[]" data-placeholder="Choose a cell..." class="chosen-select" multiple style="width:300px;" tabindex="4">
-        <option value=""></option>       
-            <?php foreach($cellList_array as $k => $v) { ?>
-                <option value=<?php echo $cellList_array[$k];?>
-                  
-                  <?php
-                    if (isset($selection)) {
-                      foreach ($selection as $key => $selectedCell) {
-                        echo isset($selection) && $cellList_array[$k] == $selectedCell ? ' selected' : '';
-                      }
-                    }
-                  ?>
-
-                  > <!--end of option tag -->
-
-                  <?php echo $cellList_array[$k]; ?>  
-
-            <?php } ?> 
-      </select>
-
-
-
-
-     </br></br>
-
-
-<!-- 
-  ============================
-     Start time/date - Input select
-  ============================
- --> 
-
-      <em>Start time/date:</em>
-     <select name="startDate" data-placeholder="Choose a start date..." class="chosen-select" style="width:200px;" tabindex="4">
-        <option value=""></option>       
-            <?php foreach($dateList_array as $k => $v) { ?>
-                <option value=<?php echo $dateList_array[$k];?><?php echo isset($startDate) && $dateList_array[$k] == $startDate ? ' selected' : '' ?>> <?php echo $dateList_array[$k]; ?>                      
-            <?php } ?> 
-      </select>
-
-      </br></br>
-
-<!-- 
-  ============================
-     end time/date - Input select
-  ============================
- --> 
-      <em>End time/date:</em>
-     <select name="endDate" data-placeholder="Choose an end date..." class="chosen-select" style="width:200px;" tabindex="4">
-        <option value=""></option>       
-            <?php foreach($dateList_array as $k => $v) { ?>
-                <option value=<?php echo $dateList_array[$k];?><?php echo isset($endDate) && $dateList_array[$k] == $endDate ? ' selected' : '' ?>> <?php echo $dateList_array[$k]; ?>                      
-            <?php } ?> 
-      </select>
-
-      </br></br>
-
-      <input type="submit" value="Show">
-
-      </br></br> 
-
-
-      <?php 
-        // foreach ($dateList_array as $key => $value) {
-        //  //echo ($value)."<br/>";
-        // //echo variant_get_type($value);
-
-
-        // }
-
-    ?>
-
-
-
+      <tbody>
 
       <?php
-        if($formComplete) {
-            
 
-            echo "Cell List = ";
-            foreach ($selection as $key => $cell) {
-              echo $cell.", ";
-            }
-            echo "<br/>";
-            echo "Start Date: ".$startDate;
-            echo "<br/>";
-            echo "End Date: ". $endDate;
-            echo "<br/>";
-            echo "<br/>";
-            echo "<br/>";
-            echo "<br/>";
+          foreach ($stats_pre['pre'][0] as $key => $value) {
+            //only display the first four KPI's
+            if($key == 'Total Revenue ($)')break; 
 
-            
+            $KPI = $key;
+            $pre = number_format($value,2);
+            $post = number_format($stats_post['post'][0][$key],2);
+            $delta = number_format(($post - $pre),2);
 
-            echo "CS Accessability = ". number_format($CS_CSSR_Average,2);
-            echo "</br>";
-            //echo $CS_CSSR_AverageSQL;
-            echo "CS Retainability = ". number_format($CS_Ret,2);
-            //echo "</br>";
-            //echo $CS_RetSQL;
-            echo "</br>";
-            echo "PS Accessability = ". number_format($PS_CSSR_Average,2);
-            echo "</br>";
-            echo "CS Retainability = ". number_format($PS_Ret,2);
-            echo "</br>";
-            echo "</br>";
+            if ($delta > 0){
+              $arrow = "up";
+              $arrow_color = "green"; 
+            };
 
-  
+            if ($delta < 0){
+              $arrow = "down";
+              $arrow_color = "red"; 
+            };
 
+            if ($delta == 0){
+              $arrow = "right";
+              $arrow_color = "blue"; 
+            };
 
-
-        }
+            $glyph = " <span class='glyphicon glyphicon-arrow-".$arrow."' style='color:".$arrow_color."'></span>";
+        
+            echo "<tr>";
+              echo "<th>".$KPI."</th>";
+              echo "<td>".$pre."</th>";        
+              echo "<td>".$post."</th>"; 
+              echo "<td>".$delta.$glyph."</th>";        
+            echo "</tr>";
+          }
       ?>
- 
 
+      </tbody>
+            </table>
+
+        </div>
+
+
+      <div class="col-md-6">
+        <h2>4G Performance Summary</h2>
+
+          <table class="table table-hover table-inverse table-sm" >
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Pre</th>
+                    <th>Post</th>
+                    <th>Delta</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <th scope="row"><?php ?></th>
+                    <td><?php ?></td>
+                    <td><?php ?></td>
+                    <td><?php ?></td>                  
+                  </tr>
+                
+                </tbody>
+            </table>
+
+
+
+      </div>
+    </div>
+
+
+      <div class="row">
+        <div class="col-md-6">
+          <h2>3G Performance Detailed </h2>
+
+          <table class="table table-hover table-inverse table-sm" >
+                <thead>
+          <tr>
+            <th></th>
+            <th>Pre</th>
+            <th>Post</th>
+            <th>Delta</th>
+          </tr>
+        </thead>
+
+      <tbody>
+
+      <?php
+
+          foreach ($stats_pre['pre'][0] as $key => $value) {
+            if ($key == 'UMTS_CS_Acc (%)') continue;
+            if ($key == 'UMTS_CS_Ret (%)') continue;
+            if ($key == 'UMTS_PS_Acc (%)') continue;
+            if ($key == 'UMTS_PS_Ret (%)') continue;
+
+            $KPI = $key;
+            $pre = $value;
+            $post = $stats_post['post'][0][$key];
+            $delta = ($post - $pre);
+
+            if ($delta > 0){
+              $arrow = "up";
+              $arrow_color = "red"; 
+            };
+
+            if ($delta < 0){
+              $arrow = "down";
+              $arrow_color = "green"; 
+            };
+
+            if ($delta == 0){
+              $arrow = "right";
+              $arrow_color = "blue"; 
+            };
+
+            $glyph = " <span class='glyphicon glyphicon-arrow-".$arrow."' style='color:".$arrow_color."'></span>";
+        
+            echo "<tr>";
+              echo "<th>".$KPI."</th>";
+              echo "<td>".number_format($pre,0)."</th>";        
+              echo "<td>".number_format($post,0)."</th>"; 
+              echo "<td>".number_format($delta,0).$glyph."</th>";        
+            echo "</tr>";
+          }
+      ?>
+
+      </tbody>
+            </table>
+
+        </div>
+
+
+ <div class="row">
+        <div class="col-md-6">
+          <h2>4G Performance Detailed </h2>
+
+          <table class="table table-hover table-inverse table-sm" >
+          <thead>
+            <tr>
+              <th></th>
+              <th>Pre</th>
+              <th>Post</th>
+              <th>Delta</th>
+            </tr>          
+          </thead>
+
+      <tbody>
+
+      <?php
+
+          foreach ($stats_4G_pre['pre'] as $key => $value) {
+
+            $KPI = $key;
+            $pre = $value;
+            $post = $stats_4G_post['post'][$key];
+            $delta = ($post - $pre);
+
+            if ($delta > 0){
+              $arrow = "up";
+              $arrow_color = "red"; 
+            };
+
+            if ($delta < 0){
+              $arrow = "down";
+              $arrow_color = "green"; 
+            };
+
+            if ($delta == 0){
+              $arrow = "right";
+              $arrow_color = "blue"; 
+            };
+
+            $glyph = " <span class='glyphicon glyphicon-arrow-".$arrow."' style='color:".$arrow_color."'></span>";
+        
+            echo "<tr>";
+              echo "<th>".$KPI."</th>";
+              echo "<td>".number_format($pre,0)."</th>";        
+              echo "<td>".number_format($post,0)."</th>"; 
+              echo "<td>".number_format($delta,0).$glyph."</th>";        
+            echo "</tr>";
+          }
+      ?>
+
+      </tbody>
+      </table>
+
+        </div>
 
     </div>
-  </div>       
-</div>
-</div>
-</form>
+
+
+      <hr>
+
+    <div class="row">
+      <div class="col-md-12">
+      <h2>3G Cells Results</h2>
+        <hr>      
+      </div>
+    </div> <!--end of fourth row --> 
+
+
+    <div class="row">
+      <div class="col-md-12">
+      <h2>4G Cells Results</h2>
+        <hr>      
+      </div>
+    </div> <!--end of fifth row --> 
+
+        <div class="row">
+      <div class="col-md-12">
+      <h2>Charts</h2>
+        <hr>      
+      </div>
+    </div> <!--end of sixth row --> 
+
+
+    </div> <!-- end of container -->
 
 </body>
+
 
 <footer>
 
@@ -392,38 +524,19 @@
 <script src="chosen.jquery.js" type="text/javascript"></script>
 <script src="docsupport/prism.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript">
-var config = {
-  '.chosen-select'           : {},
-  '.chosen-select-deselect'  : {allow_single_deselect:true},
-  '.chosen-select-no-single' : {disable_search_threshold:10},
-  '.chosen-select-no-results': {no_results_text:'Oops, nothing found!'},
-  '.chosen-select-width'     : {width:"95%"}
-}
-for (var selector in config) {
-  $(selector).chosen(config[selector]);
-}
+  var config = {
+    '.chosen-select'           : {},
+    '.chosen-select-deselect'  : {allow_single_deselect:true},
+    '.chosen-select-no-single' : {disable_search_threshold:10},
+    '.chosen-select-no-results': {no_results_text:'Oops, nothing found!'},
+    '.chosen-select-width'     : {width:"95%"}
+  }
+  for (var selector in config) {
+    $(selector).chosen(config[selector]);
+  }
 </script>
 
 
-
-
-
-<!-- 
-   <form action:"index.php" method='POST' enctype='multipart/form-data'>  
-        <div align="left">  
-             <p>Upload CSV: <input type='file' name='file' /></p>  
-             <p><input type='submit' name='submit' value='Import' /></p>  
-        </div>  
-   </form>  
- -->
-        
-
-
-
-
   </footer>
-
-
-  
 
 </html>
