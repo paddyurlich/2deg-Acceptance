@@ -62,37 +62,25 @@ function returnStats4G($pp, $selection, $startDate, $endDate){
       // CREATE SQL QUERRY STRING - FOR CALULATED KPIS
       //======================================================
 
-      $sql_string_first = "";
+      $sql_string_first = "";             
 
-      // $sql_string_first = "(((sum(PU_Voice_RRC_Succ)/sum(PU_Voice_RRC_Att))*100) *
-      //                     ((sum(PU_Voice_RAB_Succ)/sum(PU_Voice_RAB_Att))*100))/100
-      //                       AS 'UMTS_CS_Acc (%)', 
-      //                     (100-((sum(PU_Voice_Ret_Num)/sum(PU_Voice_Ret_Den))*100))
-      //                       AS 'UMTS_CS_Ret (%)', 
-      //                     (((sum(PU_PS_RRC_Succ)/sum(PU_PS_RRC_Att))*100) *
-      //                     ((sum(PU_PS_RAB_Succ)/sum(PU_PS_RAB_Att))*100))/100
-      //                       AS 'UMTS_PS_Acc (%)', 
-      //                     (100-((sum(PU_PS_Ret_Num)/sum(PU_PS_Ret_Den))*100))
-      //                       AS 'UMTS_PS_Ret (%)', ";               
+      $sql_string_first =  "(sum(`L.RRC.ConnReq.Succ`)/(sum(`L.RRC.ConnReq.Att`))*100)
+                           AS 'RRC Setup Success Rate (%)',";
 
-      // $sql_string_first =  "(((sum(PU_Voice_RRC_Succ)/sum(PU_Voice_RRC_Att))*100) *
-      //                      ((sum(PU_Voice_RAB_Succ)/sum(PU_Voice_RAB_Att))*100))/100
-      //                      AS 'UMTS_CS_Acc (%)',";
+      $sql_string_first .= "(sum(`L.CSFB.PrepSucc`)/(sum(`L.CSFB.PrepAtt`))*100)
+                           AS 'CSFB Response Success Rate (%)',";
 
-      // $sql_string_first .=  "(100-((sum(PU_Voice_Ret_Num)/sum(PU_Voice_Ret_Den))*100))
-      //                      AS 'UMTS_CS_Ret (%)',";
+      $sql_string_first .= "(sum(`L.E-RAB.SuccEst`)/(sum(`L.E-RAB.AttEst`))*100)
+                           AS 'E-RAB Setup Success Rate (ALL) (%)',";
 
-      // $sql_string_first .=  "(((sum(PU_PS_RRC_Succ)/sum(PU_PS_RRC_Att))*100) *
-      //                      ((sum(PU_PS_RAB_Succ)/sum(PU_PS_RAB_Att))*100))/100
-      //                      AS 'UMTS_PS_Acc (%)',"; 
+      $sql_string_first .= "((sum(`L.IRATHO.E2W.ExecSuccOut`))/((sum(`L.IRATHO.E2W.ExecAttOut`)))*100)
+                           AS 'Inter-RAT Handover Out Success Rate (LTE to WCDMA)',";
 
-      // $sql_string_first .=  "(100-((sum(PU_PS_Ret_Num)/sum(PU_PS_Ret_Den))*100))
-      //                       AS 'UMTS_PS_Ret (%)', "; 
+      $sql_string_first .= "(sum(`L.E-RAB.AbnormRel`)/(sum(`L.E-RAB.NormRel`) + sum(`L.E-RAB.AbnormRel`))*100)
+                           AS 'Call Drop Rate (All)(%)',";
 
-      // $sql_string_first .= "(sum(VS_HSDPA_MeanChThroughput_TotalMBytes) + sum(VS_HSUPA_MeanChThroughput_TotalMBytes)) *
-      //                       revenue_figures.data +
-      //                       (sum(VS_AMR_RB_Erlang_Sum) * revenue_figures.voice)
-      //                       AS 'Total Revenue ($)',";
+      $sql_string_first .= "(((sum(`Cell Traffic Volume_DL(Gbits)`) + sum(`Cell Traffic Volume_UL(Gbits)`)) * 1024) / 8 ) * revenue_figures.data 
+                            AS 'Total 4G Revenue ($)',";
 
       //======================================================
       // CREATE BODY OF SQL STRING
@@ -100,7 +88,7 @@ function returnStats4G($pp, $selection, $startDate, $endDate){
 
       $sql_string_main = "";
 
-      for ($x = 18; $x <= $size_of_KPI_array ; $x++) {
+      for ($x = 1; $x <= $size_of_KPI_array ; $x++) {
         $sql_string_main .= "sum(`".$KPI_field_array[$x]['Field']."`) AS `".$KPI_field_array[$x]['Field']."`,";
 
         //create KPI name array with just the required KPI is form 18 to 35
@@ -115,11 +103,11 @@ function returnStats4G($pp, $selection, $startDate, $endDate){
       $sql_string_select = "SELECT ";
 
       $sql_string_main = substr($sql_string_main,0,-1);
+      //$sql_string_main = "";
     
       $sql_string_end = " FROM ranPU.Acceptance_Stats_4G_daily, ranPU.revenue_figures WHERE (Acceptance_Stats_4G_daily.Date BETWEEN '".$startDate."' AND '".$endDate."') AND (".$selectedCells.")"; 
 
-      $SQL_string =  $sql_string_select.$sql_string_first.$sql_string_main.$sql_string_end;
-
+       $SQL_string =  $sql_string_select.$sql_string_first.$sql_string_main.$sql_string_end;
       
       //echo $SQL_string;
 

@@ -142,7 +142,6 @@ function returnStats3G($pp, $selection, $startDate, $endDate){
       return $result_array;
      }
  } 
- 
  return null;
 ?>
 

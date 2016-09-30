@@ -6,18 +6,18 @@
 <?php include 'getCellList.php' ?>
 <?php include 'getCellList4G.php' ?>
 <?php include 'getDateList.php' ?>
-
+<?php include 'getFieldType3G.php' ?>
+<?php include 'getFieldType4G.php' ?>
 
 <?php
 
-  // get date list and and cell list from functions. 
   $dateList = getDateList();
   $cellList = getCellList();
   $cellList4G = getCellList4G();
-
+  $fieldtype3G = getFieldType3G();
+  $fieldtype4G = getFieldType4G();
 
   set_time_limit(360);
-
 
   //=============================
   // helper vars
@@ -29,7 +29,6 @@
   $selectedCells_4G_pre = isset($_GET['cell4Gpre']) ? $_GET['cell4Gpre'] : null ;
   $selectedCells_4G_post = isset($_GET['cell4Gpost']) ? $_GET['cell4Gpost'] : null ;
 
-
   $startDate = isset($_GET['startDate']) ? $_GET['startDate'] : null ;
   $endDate = isset($_GET['endDate']) ? $_GET['endDate'] : null ;
 
@@ -37,9 +36,6 @@
   $endDate_post = isset($_GET['endDate_post']) ? $_GET['endDate_post'] : null ;
 
   $formComplete = (is_null($selectedCells_pre)  || is_null($startDate) || is_null($endDate)) ? false : true ;
-
-
-  // $connect->close();
 
   $stats_pre =  returnStats3G("pre", $selectedCells_pre, $startDate, $endDate);
   $stats_post =  returnStats3G("post", $selectedCells_post, $startDate_post, $endDate_post);
@@ -82,32 +78,70 @@
   <!-- Latest compiled JavaScript -->
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
+  <style type="text/css" media="all">
+    .container {
+      width: 90%;
+/*      color: grey;*/
+    }
+
+
+  </style>
 
 
 </head>
 <body>
 
 
-<!--     <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-          <div class="navbar-header">
-            <a class="navbar-brand" href="#"> Acceptance Stats </a>
-          </div>
-    </nav> -->
-
-
-<!-- <br></br><br></br> -->
-
-    <div class="jumbotron">
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container">
-        <h1>Acceptance Stats</h1>
-        <p>Compare performance of a cluster between a range of dates. </p>
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Acceptance Stats snapshot and delta</a>
+        </div>
+<!--         <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li role="separator" class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="../navbar/">Default</a></li>
+            <li><a href="../navbar-static-top/">Static top</a></li>
+            <li class="active"><a href="./">Fixed top <span class="sr-only">(current)</span></a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
       </div>
-    </div>
+    </nav>
+    <br><br><br><br>
 
 
+<div class="container">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Date and cell selection</h3>
+  </div>
+  <div class="panel-body">
+
+    
     <form action:"index.php" method: "get">
-    <div class="container">
 
       <div class="row">
 
@@ -274,214 +308,646 @@
 
 </form> <!-- end of form --> 
 
+<!-- ===============================================================================================
+OUTPUT STATS TABLES
+=============================================================================================== -->
+
+
+ 
+  </div>
+</div>
+
+
+      <div class="row">
+        <div class="col-md-6">
+          <h2>MAIN 3G KPI (%)</h2>
+
+          <table class="table table-hover table-inverse table-sm" >
+            <thead>
+              <tr>
+                <th></th>
+                <th>Pre</th>
+                <th>Post</th>
+                <th>Delta</th>
+                <th></th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+            <?php 
+                foreach ($fieldtype3G as $key => $value) {
+
+                  $table = $fieldtype3G[$key]['table'];
+
+                  if ($table != "main") {
+                    continue;
+                  }
+
+                  $decPlaces = $fieldtype3G[$key]['dec'];
+                  $arrowType = $fieldtype3G[$key]['arrow'];
+                  $KPI = $fieldtype3G[$key]['alias'];
+                  $pre = (float)($stats_pre['pre'][0][$key]);
+                  $post = (float)($stats_post['post'][0][$key]);
+                  $delta = (float)($post - $pre); 
+
+                  // SET ARROW DIRECTION = NORMAL
+                  
+                  if ($arrowType == "normal") {
+                    
+                    if ($delta > 0){
+                      $arrow = "up";
+                      $arrow_color = "green"; 
+                    };
+
+                    if ($delta < 0){
+                      $arrow = "down";
+                      $arrow_color = "red"; 
+                    };
+
+                    if ($delta == 0){
+                      $arrow = "right";
+                      $arrow_color = "blue"; 
+                    };
+                  }
+
+                  // SET ARROW DIRECTION = INVSERE
+                  if ($arrowType == "inverse") {
+                    if ($delta > 0){
+                      $arrow = "up";
+                      $arrow_color = "red"; 
+                    };
+
+                    if ($delta < 0){
+                      $arrow = "down";
+                      $arrow_color = "green"; 
+                    };
+
+                    if ($delta == 0){
+                      $arrow = "right";
+                      $arrow_color = "blue"; 
+                    };
+                  }
+
+                  $glyph = " <span class='glyphicon glyphicon-arrow-".$arrow."' style='color:".$arrow_color."'></span>";
+              
+                  echo "<tr>";
+                    echo "<th>".$KPI."</th>";
+                    echo "<td>".number_format($pre,$decPlaces)."</th>";        
+                    echo "<td>".number_format($post,$decPlaces)."</th>"; 
+                    echo "<td>".number_format($delta,$decPlaces)."</th>"; 
+                    echo "<td>".$glyph."</th>";        
+                  echo "</tr>";
+                }
+            ?>
+
+            </tbody>
+          </table>
+        </div>
+
+
+        <div class="col-md-6">
+          <h2>MAIN 4G KPI (%)</h2>
+
+          <table class="table table-hover table-inverse table-sm" >
+            <thead>
+              <tr>
+                <th></th>
+                <th>Pre</th>
+                <th>Post</th>
+                <th>Delta</th>
+                <th></th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+            <?php 
+                foreach ($fieldtype4G as $key => $value) {
+
+                  $table = $fieldtype4G[$key]['table'];
+
+                  if ($table != "main") {
+                    continue;
+                  }
+
+                  $decPlaces = $fieldtype4G[$key]['dec'];
+                  $arrowType = $fieldtype4G[$key]['arrow'];
+                  $KPI = $fieldtype4G[$key]['alias'];
+                  $pre =  (float)($stats_4G_pre['pre'][$key]);
+                  $post =  (float)($stats_4G_post['post'][$key]);
+                  $delta = (float)($post - $pre); 
+
+                  // SET ARROW DIRECTION = NORMAL
+                  
+                  if ($arrowType == "normal") {
+                    
+                    if ($delta > 0){
+                      $arrow = "up";
+                      $arrow_color = "green"; 
+                    };
+
+                    if ($delta < 0){
+                      $arrow = "down";
+                      $arrow_color = "red"; 
+                    };
+
+                    if ($delta == 0){
+                      $arrow = "right";
+                      $arrow_color = "blue"; 
+                    };
+                  }
+
+                  // SET ARROW DIRECTION = INVSERE
+                  if ($arrowType == "inverse") {
+                    if ($delta > 0){
+                      $arrow = "up";
+                      $arrow_color = "red"; 
+                    };
+
+                    if ($delta < 0){
+                      $arrow = "down";
+                      $arrow_color = "green"; 
+                    };
+
+                    if ($delta == 0){
+                      $arrow = "right";
+                      $arrow_color = "blue"; 
+                    };
+                  }
+
+                  $glyph = " <span class='glyphicon glyphicon-arrow-".$arrow."' style='color:".$arrow_color."'></span>";
+              
+                  echo "<tr>";
+                    echo "<th>".$KPI."</th>";
+                    echo "<td>".number_format($pre,$decPlaces)."</th>";        
+                    echo "<td>".number_format($post,$decPlaces)."</th>"; 
+                    echo "<td>".number_format($delta,$decPlaces)."</th>"; 
+                    echo "<td>".$glyph."</th>";        
+                  echo "</tr>";
+                }
+            ?>
+
+            </tbody>
+          </table>
+        </div>
+
+      </div> <!-- end first row -->
+
       
       <div class="row">
         <div class="col-md-6">
-          <h2>3G Performance Summary</h2>
+          <h2>3G Traffic</h2>
 
           <table class="table table-hover table-inverse table-sm" >
-                <thead>
-          <tr>
-            <th></th>
-            <th>Pre</th>
-            <th>Post</th>
-            <th>Delta</th>
-          </tr>
-        </thead>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Pre</th>
+                <th>Post</th>
+                <th>Delta</th>
+                <th></th>
+              </tr>
+            </thead>
 
-      <tbody>
+            <tbody>
 
-      <?php
+            <?php 
+                foreach ($fieldtype3G as $key => $value) {
 
-          foreach ($stats_pre['pre'][0] as $key => $value) {
-            //only display the first four KPI's
-            if($key == 'Total Revenue ($)')break; 
+                  $table = $fieldtype3G[$key]['table'];
 
-            $KPI = $key;
-            $pre = number_format($value,2);
-            $post = number_format($stats_post['post'][0][$key],2);
-            $delta = number_format(($post - $pre),2);
+                  if ($table != "traffic") {
+                    continue;
+                  }
 
-            if ($delta > 0){
-              $arrow = "up";
-              $arrow_color = "green"; 
-            };
+                  $decPlaces = $fieldtype3G[$key]['dec'];
+                  $arrowType = $fieldtype3G[$key]['arrow'];
+                  $KPI = $fieldtype3G[$key]['alias'];
+                  $pre = (float)($stats_pre['pre'][0][$key]);
+                  $post =  (float)($stats_post['post'][0][$key]);
+                  $delta = (float)($post - $pre);       
+                  
+                  // SET ARROW DIRECTION = NORMAL
+                  
+                  if ($arrowType == "normal") {
+                    
+                    if ($delta > 0){
+                      $arrow = "up";
+                      $arrow_color = "green"; 
+                    };
 
-            if ($delta < 0){
-              $arrow = "down";
-              $arrow_color = "red"; 
-            };
+                    if ($delta < 0){
+                      $arrow = "down";
+                      $arrow_color = "red"; 
+                    };
 
-            if ($delta == 0){
-              $arrow = "right";
-              $arrow_color = "blue"; 
-            };
+                    if ($delta == 0){
+                      $arrow = "right";
+                      $arrow_color = "blue"; 
+                    };
+                  }
 
-            $glyph = " <span class='glyphicon glyphicon-arrow-".$arrow."' style='color:".$arrow_color."'></span>";
-        
-            echo "<tr>";
-              echo "<th>".$KPI."</th>";
-              echo "<td>".$pre."</th>";        
-              echo "<td>".$post."</th>"; 
-              echo "<td>".$delta.$glyph."</th>";        
-            echo "</tr>";
-          }
-      ?>
+                  // SET ARROW DIRECTION = INVSERE
+                  if ($arrowType == "inverse") {
+                    if ($delta > 0){
+                      $arrow = "up";
+                      $arrow_color = "red"; 
+                    };
 
-      </tbody>
-            </table>
+                    if ($delta < 0){
+                      $arrow = "down";
+                      $arrow_color = "green"; 
+                    };
 
+                    if ($delta == 0){
+                      $arrow = "right";
+                      $arrow_color = "blue"; 
+                    };
+                  }
+
+                  $glyph = " <span class='glyphicon glyphicon-arrow-".$arrow."' style='color:".$arrow_color."'></span>";
+              
+                  echo "<tr>";
+                    echo "<th>".$KPI."</th>";
+                    echo "<td>".number_format($pre,$decPlaces)."</th>";        
+                    echo "<td>".number_format($post,$decPlaces)."</th>"; 
+                    echo "<td>".number_format($delta,$decPlaces)."</th>"; 
+                    echo "<td>".$glyph."</th>";        
+                  echo "</tr>";
+                }
+            ?>
+
+            </tbody>
+          </table>
         </div>
 
 
-      <div class="col-md-6">
-        <h2>4G Performance Summary</h2>
-
-          <table class="table table-hover table-inverse table-sm" >
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th>Pre</th>
-                    <th>Post</th>
-                    <th>Delta</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  <tr>
-                    <th scope="row"><?php ?></th>
-                    <td><?php ?></td>
-                    <td><?php ?></td>
-                    <td><?php ?></td>                  
-                  </tr>
-                
-                </tbody>
-            </table>
-
-
-
-      </div>
-    </div>
-
-
-      <div class="row">
         <div class="col-md-6">
-          <h2>3G Performance Detailed </h2>
+          <h2>4G Traffic</h2>
 
           <table class="table table-hover table-inverse table-sm" >
-                <thead>
-          <tr>
-            <th></th>
-            <th>Pre</th>
-            <th>Post</th>
-            <th>Delta</th>
-          </tr>
-        </thead>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Pre</th>
+                <th>Post</th>
+                <th>Delta</th>
+                <th></th>
+              </tr>
+            </thead>
 
-      <tbody>
+            <tbody>
 
-      <?php
+            <?php 
+                foreach ($fieldtype4G as $key => $value) {
 
-          foreach ($stats_pre['pre'][0] as $key => $value) {
-            if ($key == 'UMTS_CS_Acc (%)') continue;
-            if ($key == 'UMTS_CS_Ret (%)') continue;
-            if ($key == 'UMTS_PS_Acc (%)') continue;
-            if ($key == 'UMTS_PS_Ret (%)') continue;
+                  $table = $fieldtype4G[$key]['table'];
 
-            $KPI = $key;
-            $pre = $value;
-            $post = $stats_post['post'][0][$key];
-            $delta = ($post - $pre);
+                  if ($table != "traffic") {
+                    continue;
+                  }
 
-            if ($delta > 0){
-              $arrow = "up";
-              $arrow_color = "red"; 
-            };
+                  $decPlaces = $fieldtype4G[$key]['dec'];
+                  $arrowType = $fieldtype4G[$key]['arrow'];
+                  $KPI = $fieldtype4G[$key]['alias'];
+                  $pre =  (float)($stats_4G_pre['pre'][$key]);
+                  $post =  (float)($stats_4G_post['post'][$key]);
+                  $delta = (float)($post - $pre); 
 
-            if ($delta < 0){
-              $arrow = "down";
-              $arrow_color = "green"; 
-            };
+                  // SET ARROW DIRECTION = NORMAL
+                  
+                  if ($arrowType == "normal") {
+                    
+                    if ($delta > 0){
+                      $arrow = "up";
+                      $arrow_color = "green"; 
+                    };
 
-            if ($delta == 0){
-              $arrow = "right";
-              $arrow_color = "blue"; 
-            };
+                    if ($delta < 0){
+                      $arrow = "down";
+                      $arrow_color = "red"; 
+                    };
 
-            $glyph = " <span class='glyphicon glyphicon-arrow-".$arrow."' style='color:".$arrow_color."'></span>";
-        
-            echo "<tr>";
-              echo "<th>".$KPI."</th>";
-              echo "<td>".number_format($pre,0)."</th>";        
-              echo "<td>".number_format($post,0)."</th>"; 
-              echo "<td>".number_format($delta,0).$glyph."</th>";        
-            echo "</tr>";
-          }
-      ?>
+                    if ($delta == 0){
+                      $arrow = "right";
+                      $arrow_color = "blue"; 
+                    };
+                  }
 
-      </tbody>
-            </table>
+                  // SET ARROW DIRECTION = INVSERE
+                  if ($arrowType == "inverse") {
+                    if ($delta > 0){
+                      $arrow = "up";
+                      $arrow_color = "red"; 
+                    };
 
+                    if ($delta < 0){
+                      $arrow = "down";
+                      $arrow_color = "green"; 
+                    };
+
+                    if ($delta == 0){
+                      $arrow = "right";
+                      $arrow_color = "blue"; 
+                    };
+                  }
+
+                  $glyph = " <span class='glyphicon glyphicon-arrow-".$arrow."' style='color:".$arrow_color."'></span>";
+              
+                  echo "<tr>";
+                    echo "<th>".$KPI."</th>";
+                    echo "<td>".number_format($pre,$decPlaces)."</th>";        
+                    echo "<td>".number_format($post,$decPlaces)."</th>"; 
+                    echo "<td>".number_format($delta,$decPlaces)."</th>"; 
+                    echo "<td>".$glyph."</th>";        
+                  echo "</tr>";
+                }
+            ?>
+
+            </tbody>
+          </table>
         </div>
+      </div>
 
 
  <div class="row">
-        <div class="col-md-6">
-          <h2>4G Performance Detailed </h2>
+      <div class="col-md-6">
+          <h2>Congestion CS</h2>
 
           <table class="table table-hover table-inverse table-sm" >
-          <thead>
-            <tr>
-              <th></th>
-              <th>Pre</th>
-              <th>Post</th>
-              <th>Delta</th>
-            </tr>          
-          </thead>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Pre</th>
+                <th>Post</th>
+                <th>Delta</th>
+                <th></th>
+              </tr>
+            </thead>
 
-      <tbody>
+            <tbody>
 
-      <?php
+            <?php 
+                foreach ($fieldtype3G as $key => $value) {
 
-          foreach ($stats_4G_pre['pre'] as $key => $value) {
+                  $table = $fieldtype3G[$key]['table'];
 
-            $KPI = $key;
-            $pre = $value;
-            $post = $stats_4G_post['post'][$key];
-            $delta = ($post - $pre);
+                  if ($table != "congestion_CS") {
+                    continue;
+                  }
 
-            if ($delta > 0){
-              $arrow = "up";
-              $arrow_color = "red"; 
-            };
+                  $decPlaces = $fieldtype3G[$key]['dec'];
+                  $arrowType = $fieldtype3G[$key]['arrow'];
+                  $KPI = $fieldtype3G[$key]['alias'];
+                  $pre =  floatval(number_format($stats_pre['pre'][0][$key],$decPlaces));
+                  $post =  floatval(number_format($stats_post['post'][0][$key],$decPlaces));
+                  $delta = floatval(number_format(($post - $pre),$decPlaces)); 
 
-            if ($delta < 0){
-              $arrow = "down";
-              $arrow_color = "green"; 
-            };
+                  // SET ARROW DIRECTION = NORMAL
+                  
+                  if ($arrowType == "normal") {
+                    
+                    if ($delta > 0){
+                      $arrow = "up";
+                      $arrow_color = "green"; 
+                    };
 
-            if ($delta == 0){
-              $arrow = "right";
-              $arrow_color = "blue"; 
-            };
+                    if ($delta < 0){
+                      $arrow = "down";
+                      $arrow_color = "red"; 
+                    };
 
-            $glyph = " <span class='glyphicon glyphicon-arrow-".$arrow."' style='color:".$arrow_color."'></span>";
-        
-            echo "<tr>";
-              echo "<th>".$KPI."</th>";
-              echo "<td>".number_format($pre,0)."</th>";        
-              echo "<td>".number_format($post,0)."</th>"; 
-              echo "<td>".number_format($delta,0).$glyph."</th>";        
-            echo "</tr>";
-          }
-      ?>
+                    if ($delta == 0){
+                      $arrow = "right";
+                      $arrow_color = "blue"; 
+                    };
+                  }
 
-      </tbody>
-      </table>
+                  // SET ARROW DIRECTION = INVSERE
+                  if ($arrowType == "inverse") {
+                    if ($delta > 0){
+                      $arrow = "up";
+                      $arrow_color = "red"; 
+                    };
 
+                    if ($delta < 0){
+                      $arrow = "down";
+                      $arrow_color = "green"; 
+                    };
+
+                    if ($delta == 0){
+                      $arrow = "right";
+                      $arrow_color = "blue"; 
+                    };
+                  }
+
+                  $glyph = " <span class='glyphicon glyphicon-arrow-".$arrow."' style='color:".$arrow_color."'></span>";
+              
+                  echo "<tr>";
+                    echo "<th>".$KPI."</th>";
+                    echo "<td>".number_format($pre,$decPlaces)."</th>";        
+                    echo "<td>".number_format($post,$decPlaces)."</th>"; 
+                    echo "<td>".number_format($delta,$decPlaces)."</th>"; 
+                    echo "<td>".$glyph."</th>";        
+                  echo "</tr>";
+                }
+            ?>
+
+            </tbody>
+          </table>
         </div>
 
-    </div>
+ <div class="col-md-6">
+          <h2>4G Basic</h2>
+
+          <table class="table table-hover table-inverse table-sm" >
+            <thead>
+              <tr>
+                <th></th>
+                <th>Pre</th>
+                <th>Post</th>
+                <th>Delta</th>
+                <th></th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+            <?php 
+                foreach ($fieldtype4G as $key => $value) {
+
+                  $table = $fieldtype4G[$key]['table'];
+
+                  if ($table != "basic") {
+                    continue;
+                  }
+
+                  $decPlaces = $fieldtype4G[$key]['dec'];
+                  $arrowType = $fieldtype4G[$key]['arrow'];
+                  $KPI = $fieldtype4G[$key]['alias'];
+                  $pre =  (float)($stats_4G_pre['pre'][$key]);
+                  $post =  (float)($stats_4G_post['post'][$key]);
+                  $delta = (float)($post - $pre); 
+
+                  // SET ARROW DIRECTION = NORMAL
+                  
+                  if ($arrowType == "normal") {
+                    
+                    if ($delta > 0){
+                      $arrow = "up";
+                      $arrow_color = "green"; 
+                    };
+
+                    if ($delta < 0){
+                      $arrow = "down";
+                      $arrow_color = "red"; 
+                    };
+
+                    if ($delta == 0){
+                      $arrow = "right";
+                      $arrow_color = "blue"; 
+                    };
+                  }
+
+                  // SET ARROW DIRECTION = INVSERE
+                  if ($arrowType == "inverse") {
+                    if ($delta > 0){
+                      $arrow = "up";
+                      $arrow_color = "red"; 
+                    };
+
+                    if ($delta < 0){
+                      $arrow = "down";
+                      $arrow_color = "green"; 
+                    };
+
+                    if ($delta == 0){
+                      $arrow = "right";
+                      $arrow_color = "blue"; 
+                    };
+                  }
+
+                  $glyph = " <span class='glyphicon glyphicon-arrow-".$arrow."' style='color:".$arrow_color."'></span>";
+              
+                  echo "<tr>";
+                    echo "<th>".$KPI."</th>";
+                    echo "<td>".number_format($pre,$decPlaces)."</th>";        
+                    echo "<td>".number_format($post,$decPlaces)."</th>"; 
+                    echo "<td>".number_format($delta,$decPlaces)."</th>"; 
+                    echo "<td>".$glyph."</th>";        
+                  echo "</tr>";
+                }
+            ?>
+
+            </tbody>
+          </table>
+        </div>
+
+  </div> <!-- end of third row -->
+
+
+
+ <div class="row">
+
+<div class="col-md-6">
+          <h2>Congestion PS</h2>
+
+          <table class="table table-hover table-inverse table-sm" >
+            <thead>
+              <tr>
+                <th></th>
+                <th>Pre</th>
+                <th>Post</th>
+                <th>Delta</th>
+                <th></th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+            <?php 
+                foreach ($fieldtype3G as $key => $value) {
+
+                  $table = $fieldtype3G[$key]['table'];
+
+                  if ($table != "congestion_PS") {
+                    continue;
+                  }
+
+                  $decPlaces = $fieldtype3G[$key]['dec'];
+                  $arrowType = $fieldtype3G[$key]['arrow'];
+                  $KPI = $fieldtype3G[$key]['alias'];
+                  $pre =  floatval(number_format($stats_pre['pre'][0][$key],$decPlaces));
+                  $post =  floatval(number_format($stats_post['post'][0][$key],$decPlaces));
+                  $delta = floatval(number_format(($post - $pre),$decPlaces)); 
+
+                  // SET ARROW DIRECTION = NORMAL
+                  
+                  if ($arrowType == "normal") {
+                    
+                    if ($delta > 0){
+                      $arrow = "up";
+                      $arrow_color = "green"; 
+                    };
+
+                    if ($delta < 0){
+                      $arrow = "down";
+                      $arrow_color = "red"; 
+                    };
+
+                    if ($delta == 0){
+                      $arrow = "right";
+                      $arrow_color = "blue"; 
+                    };
+                  }
+
+                  // SET ARROW DIRECTION = INVSERE
+                  if ($arrowType == "inverse") {
+                    if ($delta > 0){
+                      $arrow = "up";
+                      $arrow_color = "red"; 
+                    };
+
+                    if ($delta < 0){
+                      $arrow = "down";
+                      $arrow_color = "green"; 
+                    };
+
+                    if ($delta == 0){
+                      $arrow = "right";
+                      $arrow_color = "blue"; 
+                    };
+                  }
+
+                  $glyph = " <span class='glyphicon glyphicon-arrow-".$arrow."' style='color:".$arrow_color."'></span>";
+              
+                  echo "<tr>";
+                    echo "<th>".$KPI."</th>";
+                    echo "<td>".number_format($pre,$decPlaces)."</th>";        
+                    echo "<td>".number_format($post,$decPlaces)."</th>"; 
+                    echo "<td>".number_format($delta,$decPlaces)."</th>"; 
+                    echo "<td>".$glyph."</th>";        
+                  echo "</tr>";
+                }
+            ?>
+
+            </tbody>
+          </table>
+        </div>
+
+
+
+
+ </div> <!-- end of fourth row -->
+
+
+
+
+
+
+
+
 
 
       <hr>
