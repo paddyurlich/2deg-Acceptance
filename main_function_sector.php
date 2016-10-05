@@ -1,9 +1,9 @@
 <?php
     
-function returnStats3G($pp, $selection, $startDate, $endDate){
+function returnStats3G_sector($sector, $pp, $selection, $startDate, $endDate){
 
       
-  if (isset($pp, $selection, $startDate, $endDate)) {
+  if (isset($sector, $pp, $selection, $startDate, $endDate)) {
 
       //include getRevenueFigures();
       //$data_cost =  $getRevenueFigures['data'];
@@ -60,18 +60,7 @@ function returnStats3G($pp, $selection, $startDate, $endDate){
       //======================================================
       // CREATE SQL QUERRY STRING - FOR CALULATED KPIS
       //======================================================
-
-      // $sql_string_first = "(((sum(PU_Voice_RRC_Succ)/sum(PU_Voice_RRC_Att))*100) *
-      //                     ((sum(PU_Voice_RAB_Succ)/sum(PU_Voice_RAB_Att))*100))/100
-      //                       AS 'UMTS_CS_Acc (%)', 
-      //                     (100-((sum(PU_Voice_Ret_Num)/sum(PU_Voice_Ret_Den))*100))
-      //                       AS 'UMTS_CS_Ret (%)', 
-      //                     (((sum(PU_PS_RRC_Succ)/sum(PU_PS_RRC_Att))*100) *
-      //                     ((sum(PU_PS_RAB_Succ)/sum(PU_PS_RAB_Att))*100))/100
-      //                       AS 'UMTS_PS_Acc (%)', 
-      //                     (100-((sum(PU_PS_Ret_Num)/sum(PU_PS_Ret_Den))*100))
-      //                       AS 'UMTS_PS_Ret (%)', ";               
-
+             
       $sql_string_first =  "(((sum(PU_Voice_RRC_Succ)/sum(PU_Voice_RRC_Att))*100) *
                            ((sum(PU_Voice_RAB_Succ)/sum(PU_Voice_RAB_Att))*100))/100
                            AS 'UMTS_CS_Acc (%)',";
@@ -113,12 +102,9 @@ function returnStats3G($pp, $selection, $startDate, $endDate){
 
       $sql_string_main = substr($sql_string_main,0,-1);
     
-      $sql_string_end = " FROM ranPU.Acceptance_Stats_3G_daily, ranPU.revenue_figures WHERE (Acceptance_Stats_3G_daily.Date BETWEEN '".$startDate."' AND '".$endDate."') AND (".$selectedCells.")"; 
+      $sql_string_end = " FROM ranPU.Acceptance_Stats_3G_daily, ranPU.revenue_figures WHERE (Acceptance_Stats_3G_daily.Date BETWEEN '".$startDate."' AND '".$endDate."') AND right(Acceptance_Stats_3G_daily.CELLNAME,1)='".$sector."' AND (".$selectedCells.")"; 
 
       $SQL_string =  $sql_string_select.$sql_string_first.$sql_string_main.$sql_string_end;
-
-      //echo "<br><br><br><br>";
-            //echo "3G SQL".$SQL_string;
 
       //======================================================
       // GET RESULT OF QUERY AND PUT INTO ARRAY 
@@ -144,5 +130,8 @@ function returnStats3G($pp, $selection, $startDate, $endDate){
      }
  } 
  return null;
+
+
+
 ?>
 
