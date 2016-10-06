@@ -82,23 +82,6 @@ returnStats3G_carrier();
   <link rel="stylesheet" href="docsupport/style.css">
   <link rel="stylesheet" href="docsupport/prism.css">
   <link rel="stylesheet" href="chosen.css">
-  <style type="text/css" media="all">
-    /* fix rtl for demo */
-    .chosen-rtl .chosen-drop { left: -9000px; }
-    </style>
-
-
-  <style type="text/css" media="all">
-      .container {
-      width: 90%;
-      /*color: grey;*/
-    }
-    
-    .nav-tabs li a {
-      color: #777;
-    }
-    </style>
-
 
 
 
@@ -111,7 +94,20 @@ returnStats3G_carrier();
   <!-- Latest compiled JavaScript -->
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
+  <style type="text/css" media="all">
+    .chosen-rtl .chosen-drop { left: -9000px; }
+    .container {
+      width: 90%;
+      /*color: grey;*/
+    }
+    
+    .nav-tabs li a {
+      color: #777;
+    }
+  </style>
+
 </head>
+
 <body>
 
 
@@ -125,7 +121,7 @@ returnStats3G_carrier();
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Acceptance Stats snapshot and delta</a>
+          <a class="navbar-brand" href="#">Acceptance Stats</a>
         </div>
       </div>
     </nav>
