@@ -1,13 +1,9 @@
 <?php
     
-// $pp = "post";
-// $selection = array("060-TWRJ-U09-1-1","060-TWRJ-U09-1-2");
-// $startDate = "2016-09-22";
-// $endDate = "2016-09-23";
-
 function returnStats3G($pp, $selection, $startDate, $endDate){
+
       
-  // if (isset($pp, $selection, $startDate, $endDate)) {
+  if (isset($pp, $selection, $startDate, $endDate)) {
 
       //include getRevenueFigures();
       //$data_cost =  $getRevenueFigures['data'];
@@ -96,34 +92,18 @@ function returnStats3G($pp, $selection, $startDate, $endDate){
                             AS 'Total Revenue ($)',";
 
       //======================================================
-      // CREATE BODY OF SQL STRING - sum
+      // CREATE BODY OF SQL STRING
       //======================================================
 
       $sql_string_main = "";
 
       for ($x = 18; $x <= $size_of_KPI_array ; $x++) {
-       $sql_string_main .= "sum(`".$KPI_field_array[$x]['Field']."`) AS `".$KPI_field_array[$x]['Field']."_sum`,";
-
-        //create KPI name array with just the required KPI is form 18 to 35
-        //$KPI_name_array[] = $KPI_field_array[$x]['Field'];
-
-      }
-
-      //======================================================
-      // CREATE BODY OF SQL STRING - average
-      //======================================================
-
-
-      for ($x = 18; $x <= $size_of_KPI_array ; $x++) {
-        $sql_string_main .= "avg(`".$KPI_field_array[$x]['Field']."`) AS `".$KPI_field_array[$x]['Field']."_avg`,";
+        $sql_string_main .= "sum(`".$KPI_field_array[$x]['Field']."`) AS `".$KPI_field_array[$x]['Field']."`,";
 
         //create KPI name array with just the required KPI is form 18 to 35
         $KPI_name_array[] = $KPI_field_array[$x]['Field'];
 
       }
-
-
-
 
       //======================================================
       // BUILD ENTIRE SQL STRING
@@ -137,8 +117,8 @@ function returnStats3G($pp, $selection, $startDate, $endDate){
 
       $SQL_string =  $sql_string_select.$sql_string_first.$sql_string_main.$sql_string_end;
 
-      // echo "<br><br><br><br>";
-      //       echo "3G SQL = ".$SQL_string;
+      echo "<br><br><br><br>";
+            echo "3G SQL".$SQL_string;
 
       //======================================================
       // GET RESULT OF QUERY AND PUT INTO ARRAY 
@@ -162,9 +142,10 @@ function returnStats3G($pp, $selection, $startDate, $endDate){
 
       return $result_array;
      }
- // } 
- // return null;
+ } 
+ return null;
 
-//var_dump(returnStats3G($pp, $selection, $startDate, $endDate));
+
+ 
 ?>
 

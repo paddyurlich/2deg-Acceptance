@@ -85,29 +85,31 @@ returnStats3G_carrier();
   <style type="text/css" media="all">
     /* fix rtl for demo */
     .chosen-rtl .chosen-drop { left: -9000px; }
-  </style>
+    </style>
+
+
+  <style type="text/css" media="all">
+      .container {
+      width: 90%;
+      /*color: grey;*/
+    }
+    
+    .nav-tabs li a {
+      color: #777;
+    }
+    </style>
+
+
+
 
   <!-- Latest compiled and minified CSS -->
-  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
   <!-- jQuery library -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
   <!-- Latest compiled JavaScript -->
-  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-
-  <style type="text/css" media="all">
-    .container {
-      width: 90%;
-/*      color: grey;*/
-    }
-    .nav-tabs li a {
-    color: #777;
-}
-
-
-  </style>
-
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 </head>
 <body>
@@ -139,7 +141,8 @@ returnStats3G_carrier();
   <div class="panel-body">
     
     <form action:"index.php" method: "get">
-
+    
+    <div class="well">
       <div class="row">
 
         <div class="col-md-3">  
@@ -156,7 +159,7 @@ returnStats3G_carrier();
             <br/><br/>
 
             <em>End time/date: </em>
-            <select name="endDate" data-placeholder="Choose an end date..." class="chosen-select" style="width:200px;" tabindex="4">
+            <select name="endDate" data-placeholder="Choose an end date..." data-toggle="tooltip" title="Hooray!" class="chosen-select" style="width:200px;" tabindex="4">
               <option value=""></option>       
                 <?php foreach($dateList as $k => $v) { ?>
                   <option value="<?php echo $dateList[$k]?>" <?php echo isset($endDate) && $dateList[$k] == $endDate ? ' selected' : '' ?>> <?php echo $dateList[$k]; ?>                      
@@ -164,7 +167,7 @@ returnStats3G_carrier();
             </select>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-4" data-toggle="tooltip" title="Hold CNTRL to select multiple cells">
           <h2>Cells (Pre) 3G</h2>
              <hr>
              <select name="cell[]" data-placeholder="Choose a cell..." class="chosen-select" multiple style="width:300px;" tabindex="4">
@@ -188,7 +191,7 @@ returnStats3G_carrier();
               </select>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-4" data-toggle="tooltip" title="Hold CNTRL to select multiple cells">
           <h2>Cells (Pre) 4G</h2>
              <hr>
              <select name="cell4Gpre[]" data-placeholder="Choose a cell..." class="chosen-select" multiple style="width:300px;" tabindex="4">
@@ -213,10 +216,13 @@ returnStats3G_carrier();
         </div>
 
       </div> <!--end first row --> 
+      </div> <!-- end well -->
 
 
+      <div class="well">
       <div class="row">
 
+      
         <div class="col-md-3">  
           <h2>Post Dates</h2>
           <hr>
@@ -240,7 +246,7 @@ returnStats3G_carrier();
         </div>
 
 
-        <div class="col-md-4">
+        <div class="col-md-4" data-toggle="tooltip" title="Hold CNTRL to select multiple cells">
           <h2>Cells (Post) 3G</h2>
           <hr>
              <select name="cellCluster2[]" data-placeholder="Choose a cell..." class="chosen-select" multiple style="width:300px;" tabindex="4">
@@ -264,7 +270,7 @@ returnStats3G_carrier();
               </select>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-4" data-toggle="tooltip" title="Hold CNTRL to select multiple cells">
           <h2>Cells (Post) 4G</h2>
              <hr>
              <select name="cell4Gpost[]" data-placeholder="Choose a cell..." class="chosen-select" multiple style="width:300px;" tabindex="4">
@@ -290,6 +296,7 @@ returnStats3G_carrier();
 
 
     </div> <!--end second row --> 
+    </div> <!-- end well -->
 
 
 
@@ -1041,7 +1048,16 @@ returnStats3G_carrier();
 ================================================================================================= --> 
   <div id="carrier" class="tab-pane fade">
 
+      <br>
       <div class="row">
+        <div class="col-md-12">
+          <div class="alert alert-danger">
+            <strong>Note:</strong> carrier stats are based on "post" input fields.
+          </div>
+        </div>
+      </div>
+
+       <div class="row">
         <div class="col-md-6">
      
         <h3> Main KPI </h3>
@@ -1233,6 +1249,15 @@ returnStats3G_carrier();
  sector stats
 ================================================================================================= --> 
   <div id="sector" class="tab-pane fade">
+
+      <br>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="alert alert-danger">
+            <strong>Note:</strong> sector stats are based on "post" input fields.
+          </div>
+        </div>
+      </div>
 
       <div class="row">
         <div class="col-md-6">
@@ -1428,13 +1453,8 @@ returnStats3G_carrier();
 
 <footer>
 
-<!--
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js" type="text/javascript"></script>
- -->
-<script src="jquery-3.1.0.min.js" type="text/javascript"></script>
-
 <script src="chosen.jquery.js" type="text/javascript"></script>
-<script src="docsupport/prism.js" type="text/javascript" charset="utf-8"></script>
+
 <script type="text/javascript">
   var config = {
     '.chosen-select'           : {},
@@ -1446,6 +1466,13 @@ returnStats3G_carrier();
   for (var selector in config) {
     $(selector).chosen(config[selector]);
   }
+
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+      $('[data-toggle="tooltip"]').tooltip();
+    });
 </script>
 
 
