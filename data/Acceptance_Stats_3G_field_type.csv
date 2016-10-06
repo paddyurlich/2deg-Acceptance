@@ -1,23 +1,36 @@
 field_name,alias,type,arrow,table,dec
-UMTS_CS_Acc (%),UMTS CS Acc (%),perc,,main,2
-UMTS_CS_Ret (%),UMTS CS Ret (%),perc,,main,2
-UMTS_PS_Acc (%),UMTS PS Acc (%),perc,,main,2
-UMTS_PS_Ret (%),UMTS PS Ret (%),perc,,main,2
-Total Revenue ($),Total Revenue ($),dollar,,traffic,2
-VS_HSDPA_MeanChThroughput_TotalMBytes,HSDPA throughput total (MB),raw,,traffic,0
-VS_HSUPA_MeanChThroughput_TotalMBytes,HSUPA throughput total (MB),raw,,traffic,0
-VS_AMR_RB_Erlang_Sum,Voice Erlangs,raw,,traffic,0
-VS_RAB_AbnormRel_CS,Drops (CS),raw,,drops,0
-VS_RAB_AbnormRel_PS,Drops (PS),raw,,drops,0
-VS_RAB_FailEstabCS_Code_Cong,Congestion - Code,raw,,congestion_CS,0
-VS_RAB_FailEstabCS_DLCE_Cong,Congestion - DLCE (CS),raw,,congestion_CS,0
-VS_RAB_FailEstabCS_ULCE_Cong,Congestion - ULCE (CS),raw,,congestion_CS,0
-VS_RAB_FailEstabCS_ULPower_Cong,Congestion - UL Power (CS),raw,,congestion_CS,0
-VS_RAB_FailEstabCS_DLPower_Cong,Congestion - DL Power (CS),raw,,congestion_CS,0
-VS_RAB_FailEstabPS_DLCE_Cong,Congestion - DLCE (PS),raw,,congestion_PS,0
-VS_RAB_FailEstabPS_DLPower_Cong,Congestion - DL Power (PS),raw,,congestion_PS,0
-VS_RAB_FailEstabPS_HSDPAUser_Cong,Congestion - HSDPA User,raw,,congestion_PS,0
-VS_RAB_FailEstabPS_HSUPAUser_Cong,Congestion - HSUPA User,raw,,congestion_PS,0
-VS_RAB_FailEstabPS_ULCE_Cong,Congestion - ULCE (PS),raw,,congestion_PS,0
-VS_RAB_FailEstabPS_ULPower_Cong,Congestion - UL Power (PS),raw,,congestion_PS,0
-VS_RAB_FailEstabPS_Code_Cong,Congestion - Code,raw,,congestion_PS,0
+UMTS_CS_Acc (%),UMTS CS Acc (%),perc,normal,main,2
+UMTS_CS_Ret (%),UMTS CS Ret (%),perc,normal,main,2
+UMTS_PS_Acc (%),UMTS PS Acc (%),perc,normal,main,2
+UMTS_PS_Ret (%),UMTS PS Ret (%),perc,normal,main,2
+Total Revenue ($),Total Revenue ($),dollar,normal,traffic,2
+VS_HSDPA_MeanChThroughput_TotalMBytes,HSDPA throughput total (MB),raw,normal,traffic,0
+VS_HSUPA_MeanChThroughput_TotalMBytes,HSUPA throughput total (MB),raw,normal,traffic,0
+VS_AMR_RB_Erlang_Sum,Voice Erlangs,raw,normal,traffic,0
+VS_RAB_AbnormRel_CS,Drops (CS),raw,inverse,drops,0
+VS_RAB_AbnormRel_PS,Drops (PS),raw,inverse,drops,0
+VS_RAB_FailEstabCS_Code_Cong,Congestion - Code,raw,inverse,congestion_CS,0
+VS_RAB_FailEstabCS_DLCE_Cong,Congestion - DLCE (CS),raw,inverse,congestion_CS,0
+VS_RAB_FailEstabCS_ULCE_Cong,Congestion - ULCE (CS),raw,inverse,congestion_CS,0
+VS_RAB_FailEstabCS_ULPower_Cong,Congestion - UL Power (CS),raw,inverse,congestion_CS,0
+VS_RAB_FailEstabCS_DLPower_Cong,Congestion - DL Power (CS),raw,inverse,congestion_CS,0
+VS_RAB_FailEstabPS_DLCE_Cong,Congestion - DLCE (PS),raw,inverse,congestion_PS,0
+VS_RAB_FailEstabPS_DLPower_Cong,Congestion - DL Power (PS),raw,inverse,congestion_PS,0
+VS_RAB_FailEstabPS_HSDPAUser_Cong,Congestion - HSDPA User,raw,inverse,congestion_PS,0
+VS_RAB_FailEstabPS_HSUPAUser_Cong,Congestion - HSUPA User,raw,inverse,congestion_PS,0
+VS_RAB_FailEstabPS_ULCE_Cong,Congestion - ULCE (PS),raw,inverse,congestion_PS,0
+VS_RAB_FailEstabPS_ULPower_Cong,Congestion - UL Power (PS),raw,inverse,congestion_PS,0
+VS_RAB_FailEstabPS_Code_Cong,Congestion - Code,raw,inverse,congestion_PS,0
+RTWP Max(dBm),RTWP Max(dBm),raw,inverse,Resource,0
+RTWP Mean(dBm),RTWP Mean(dBm),raw,inverse,Resource,0
+RTWP Min(dBm),RTWP Min(dBm),raw,inverse,Resource,0
+TCP Max(dBm),TCP Max(dBm),raw,inverse,Resource,0
+TCP Mean(dBm),TCP Mean(dBm),raw,inverse,Resource,0
+TCP Min(dBm),TCP Min(dBm),raw,inverse,Resource,0
+Non-HS TCP Max(dBm),Non-HS TCP Max(dBm),raw,inverse,Resource,0
+Non-HS TCP Mean(dBm),Non-HS TCP Mean(dBm),raw,inverse,Resource,0
+Non-HS TCP Min(dBm),Non-HS TCP Min(dBm),raw,inverse,Resource,0
+DL CE Average,DL CE Average,raw,inverse,Resource,0
+DL CE Max,DL CE Max,raw,inverse,Resource,0
+UL CE Average,UL CE Average,raw,inverse,Resource,0
+UL CE Max,UL CE Max,raw,inverse,Resource,0

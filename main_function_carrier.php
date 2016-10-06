@@ -87,7 +87,7 @@ function returnStats3G_carrier($carrier, $pp, $selection, $startDate, $endDate){
       $sql_string_main = "";
 
       for ($x = 18; $x <= $size_of_KPI_array ; $x++) {
-        $sql_string_main .= "sum(".$KPI_field_array[$x]['Field'].") AS ".$KPI_field_array[$x]['Field'].",";
+        $sql_string_main .= "sum(`".$KPI_field_array[$x]['Field']."`) AS `".$KPI_field_array[$x]['Field']."`,";
 
         //create KPI name array with just the required KPI is form 18 to 35
         $KPI_name_array[] = $KPI_field_array[$x]['Field'];

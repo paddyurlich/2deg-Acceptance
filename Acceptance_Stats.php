@@ -882,9 +882,9 @@ returnStats3G_carrier();
             $decPlaces = $fieldtype3G[$key]['dec'];
             $arrowType = $fieldtype3G[$key]['arrow'];
             $KPI = $fieldtype3G[$key]['alias'];
-            $pre =  floatval(number_format($stats_pre['pre'][0][$key],$decPlaces));
-            $post =  floatval(number_format($stats_post['post'][0][$key],$decPlaces));
-            $delta = floatval(number_format(($post - $pre),$decPlaces)); 
+            $pre =  (float)$stats_pre['pre'][0][$key];
+            $post =  (float)$stats_post['post'][0][$key];
+            $delta = (float)($post - $pre); 
 
             // SET ARROW DIRECTION = NORMAL
             
@@ -940,6 +940,99 @@ returnStats3G_carrier();
     </table>
   </div>
 </div>  <!-- end row -->
+
+
+<div class="row">
+
+<div class="col-md-6">
+    <h3> Resources </h3>
+
+    <table class="table table-hover table-inverse table-sm table-condensed" >
+      <thead>
+        <tr>
+          <th></th>
+          <th>Pre</th>
+          <th>Post</th>
+          <th>Delta</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+      <?php 
+          foreach ($fieldtype3G as $key => $value) {
+
+            $table = $fieldtype3G[$key]['table'];
+
+            if ($table != "Resource") {
+              continue;
+            }
+
+            $decPlaces = $fieldtype3G[$key]['dec'];
+            $arrowType = $fieldtype3G[$key]['arrow'];
+            $KPI = $fieldtype3G[$key]['alias'];
+            $pre = (float)$stats_pre['pre'][0][$key];
+            $post = (float)$stats_post['post'][0][$key];
+            $delta = (float)$post - $pre;
+
+            // SET ARROW DIRECTION = NORMAL
+            
+            if ($arrowType == "normal") {
+              
+              if ($delta > 0){
+                $arrow = "up";
+                $arrow_color = "green"; 
+              };
+
+              if ($delta < 0){
+                $arrow = "down";
+                $arrow_color = "red"; 
+              };
+
+              if ($delta == 0){
+                $arrow = "right";
+                $arrow_color = "blue"; 
+              };
+            }
+
+            // SET ARROW DIRECTION = INVSERE
+            if ($arrowType == "inverse") {
+              if ($delta > 0){
+                $arrow = "up";
+                $arrow_color = "red"; 
+              };
+
+              if ($delta < 0){
+                $arrow = "down";
+                $arrow_color = "green"; 
+              };
+
+              if ($delta == 0){
+                $arrow = "right";
+                $arrow_color = "blue"; 
+              };
+            }
+
+            $glyph = " <span class='glyphicon glyphicon-arrow-".$arrow."' style='color:".$arrow_color."'></span>";
+        
+            echo "<tr>";
+              echo "<th>".$KPI."</th>";
+              echo "<td>".number_format($pre,$decPlaces)."</th>";        
+              echo "<td>".number_format($post,$decPlaces)."</th>"; 
+              echo "<td>".number_format($delta,$decPlaces)."</th>"; 
+              echo "<td>".$glyph."</th>";        
+            echo "</tr>";
+          }
+      ?>
+
+      </tbody>
+    </table>
+  </div>
+</div>  <!-- end row -->
+
+
+
 
   </div>
 
